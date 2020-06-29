@@ -1,8 +1,41 @@
-import React, { Component } from 'react';
-import ProjetoBase from './components/ProjetoBase/ProjetoBase';
+import React, { Component } from "react";
+import Header from "./components/Header";
+import Spinner from "./components/Spinner";
+import Candidates from "./components/Candidates";
 
 export default class App extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      candidates: [],
+    };
+    this.interval = null;
+  }
+
+  componentDidMount() {
+    this.interval = setInterval(() => {
+      fetch("http://localhost:8080/votes")
+        .then((res) => {
+          return res.json();
+        })
+        .then((json) => {
+          this.setState({ candidates: json.candidates });
+        });
+    }, 1000);
+  }
+
   render() {
-    return <ProjetoBase />;
+    const { candidates } = this.state;
+
+    if (candidates.length === 0) {
+      return <Spinner>Carregando</Spinner>;
+    }
+    return (
+      <div className="container">
+        <Header>Votação</Header>
+        <Candidates candidates={candidates} />
+      </div>
+    );
   }
 }
